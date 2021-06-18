@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">AudioPlayDemo</string>
+    <string name="news_fragment">资讯</string>
+    <string name="tougu_fragment">投顾</string>
+</resources>

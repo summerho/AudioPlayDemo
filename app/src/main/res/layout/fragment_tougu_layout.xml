@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <ImageView
+            android:id="@+id/play_iv"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@mipmap/play" />
+
+        <ImageView
+            android:id="@+id/start_iv"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginStart="50dp"
+            android:src="@mipmap/start_new"/>
+
+        <ImageView
+            android:id="@+id/stop_iv"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginStart="50dp"
+            android:src="@mipmap/stop_new" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/current_pos_tv"
+        android:layout_width="150dp"
+        android:background="#F8F1DD"
+        android:layout_height="40dp"
+        android:layout_marginTop="20dp"
+        android:gravity="center"
+        android:textSize="14dp"
+        android:textColor="#000000"/>
+
+    <TextView
+        android:id="@+id/duration_tv"
+        android:layout_width="150dp"
+        android:background="#F8F1DD"
+        android:layout_height="40dp"
+        android:layout_marginTop="20dp"
+        android:gravity="center"
+        android:textSize="14dp"
+        android:textColor="#000000"/>
+
+</LinearLayout>
