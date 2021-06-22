@@ -1,2 +1,3 @@
+include ':mediaplayer'
 include ':app'
 rootProject.name = "AudioPlayDemo"

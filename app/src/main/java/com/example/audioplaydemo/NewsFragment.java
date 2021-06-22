@@ -17,6 +17,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.audioplaydemo.util.Utils;
+import com.example.mediaplayer.MediaPlayerHelper;
+import com.example.mediaplayer.MediaPlayerImp;
 
 public class NewsFragment extends Fragment implements View.OnClickListener {
 
