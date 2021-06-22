@@ -42,6 +42,8 @@ public class MediaPlayerImp {
 
     private int mPlaybackState = -1;
 
+    private long mSeekToPosition;
+
     public interface MediaListener {
         void onPrepared();
 
@@ -148,11 +150,11 @@ public class MediaPlayerImp {
         }
     }
 
-    public void seekTo(int msec) {
+    public void seekTo(long msec) {
         if (isExoPLayer) {
             ((ExoPlayer) mMediaPlayer).seekTo(msec);
         } else {
-            ((MediaPlayer) mMediaPlayer).seekTo(msec);
+            ((MediaPlayer) mMediaPlayer).seekTo((int) msec);
         }
     }
 
@@ -206,6 +208,14 @@ public class MediaPlayerImp {
         mUIStatusListener = listener;
     }
 
+    /**
+     * 设置下次继续播放的位置
+     * @param position
+     */
+    public void setSeekToPosition(long position) {
+        mSeekToPosition = position;
+    }
+
     private Object createMediaPlayer(Context context) {
         if (isExoPLayer) {
             ExoPlayer exoPlayer = ExoPlayerFactory.newSimpleInstance(context, new DefaultRenderersFactory(context),
@@ -219,8 +229,10 @@ public class MediaPlayerImp {
                     }
                     mPlaybackState = playbackState;
                     if (playbackState == Player.STATE_READY) {
+                        seekTo(mSeekToPosition);
                         start();
                         mListener.onPrepared();
+                        mSeekToPosition = 0;
                     } else if (playbackState == Player.STATE_ENDED) {
                         mListener.onCompletion();
                         ((ExoPlayer) mMediaPlayer).setPlayWhenReady(false);
@@ -242,8 +254,10 @@ public class MediaPlayerImp {
         } else {
             MediaPlayer mediaPlayer = new MediaPlayer();
             mediaPlayer.setOnPreparedListener((mp) -> {
+                seekTo(mSeekToPosition);
                 start();
                 mListener.onPrepared();
+                mSeekToPosition = 0;
 
             });
             mediaPlayer.setOnErrorListener((mp, what, extra) -> {

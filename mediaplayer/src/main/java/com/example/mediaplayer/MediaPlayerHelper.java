@@ -9,13 +9,30 @@ public class MediaPlayerHelper {
 
     private volatile static MediaPlayerHelper mInstance;
 
+    /**
+     * 播放器具体实现类
+     */
     private final MediaPlayerImp mMediaPlayerImp;
 
+    /**
+     * 当前播放音频的链接
+     */
     private String mPlayUrl;
 
+    /**
+     * 当前音频监听器
+     */
     private MediaPlayerImp.MediaListener mCurrentMediaListener;
 
+    /**
+     * 前一个音频监听器
+     */
     private MediaPlayerImp.MediaListener mPreMediaListener;
+
+    /**
+     * 被暂停时的播放进度，用来从此位置继续播放
+     */
+    private long mPreMediaPlayPosition;
 
     public static MediaPlayerHelper getInstance(Context context) {
         if (mInstance == null) {
@@ -29,7 +46,7 @@ public class MediaPlayerHelper {
     }
 
     private MediaPlayerHelper(Context context) {
-        mMediaPlayerImp = new MediaPlayerImp(context, true);
+        mMediaPlayerImp = new MediaPlayerImp(context);
     }
 
     /**
@@ -70,20 +87,24 @@ public class MediaPlayerHelper {
      */
     public void play(String url) {
         stop(mPlayUrl);
+        if (mPreMediaListener != null) {
+            mPreMediaListener.onPause(); // 更新上一个音频页面的UI
+        }
+        if (TextUtils.isEmpty(mPlayUrl) || !mPlayUrl.equals(url)) {
+            mPreMediaPlayPosition = getCurrentPosition(); // 记录上一个音频被暂停时的播放进度
+        }
         mMediaPlayerImp.playAsync(url);
         mPlayUrl = url;
-        if (mPreMediaListener != null) {
-            mPreMediaListener.onPause();
-        }
     }
 
     /**
      * 继续播放
      */
     public void start(String url) {
-        if (!TextUtils.isEmpty(mPlayUrl) && mPlayUrl.equals(url)) {
+        if (!TextUtils.isEmpty(mPlayUrl) && mPlayUrl.equals(url)) { // 同一个音频，继续播放
             mMediaPlayerImp.start();
-        } else {
+        } else { // 不同音频，继续播放
+            mMediaPlayerImp.setSeekToPosition(mPreMediaPlayPosition);
             play(url);
         }
     }
@@ -117,7 +138,7 @@ public class MediaPlayerHelper {
      * 指定时间位置播放
      * @param msec 毫秒
      */
-    public void seekTo(int msec) {
+    public void seekTo(long msec) {
         mMediaPlayerImp.seekTo(msec);
     }
 

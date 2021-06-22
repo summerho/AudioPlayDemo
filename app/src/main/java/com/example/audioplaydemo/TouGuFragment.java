@@ -22,7 +22,7 @@ import com.example.mediaplayer.MediaPlayerImp;
 
 public class TouGuFragment extends Fragment implements View.OnClickListener {
 
-    private static final String MP3_URL = "https://www.0dutv.com/upload/dance/20200316/C719452E3C7834080007662021EA968E.mp3";
+    private static final String MP3_URL = "https://www.ytmp3.cn/down/32474.mp3";
 
     private View mView;
 
@@ -71,7 +71,7 @@ public class TouGuFragment extends Fragment implements View.OnClickListener {
         public void onPrepared() {
             mStartIv.setImageResource(R.mipmap.pause_new);
             isPause = false;
-            Toast.makeText(getContext(), "投顾_开始播放", Toast.LENGTH_SHORT).show();
+            isCompletion = false;
             mDurationTv.setText("时长：" + Utils.secToTime(MediaPlayerHelper.getInstance(getContext()).getDuration() / 1000));
             mTicker.run();
         }
@@ -87,7 +87,6 @@ public class TouGuFragment extends Fragment implements View.OnClickListener {
             mStartIv.setImageResource(R.mipmap.start_new);
             isPause = true;
             isCompletion = true;
-            Toast.makeText(getContext(), "投顾_播放完毕", Toast.LENGTH_SHORT).show();
             mCurrentPosTv.setText("进度：" + Utils.secToTime(0));
             mHandler.removeCallbacksAndMessages(null);
         }

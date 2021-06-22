@@ -22,7 +22,7 @@ import com.example.mediaplayer.MediaPlayerImp;
 
 public class NewsFragment extends Fragment implements View.OnClickListener {
 
-    private static final String MP3_URL = "https://www.ytmp3.cn/down/32476.mp3";
+    private static final String MP3_URL = "https://www.ytmp3.cn/down/32473.mp3";
 
     private View mView;
 
@@ -70,7 +70,7 @@ public class NewsFragment extends Fragment implements View.OnClickListener {
         public void onPrepared() {
             mStartIv.setImageResource(R.mipmap.pause);
             isPause = false;
-            Toast.makeText(getContext(), "资讯_开始播放", Toast.LENGTH_SHORT).show();
+            isCompletion = false;
             mDurationTv.setText("时长：" + Utils.secToTime(MediaPlayerHelper.getInstance(getContext()).getDuration() / 1000));
             mTicker.run();
         }
@@ -86,7 +86,6 @@ public class NewsFragment extends Fragment implements View.OnClickListener {
             mStartIv.setImageResource(R.mipmap.start);
             isPause = true;
             isCompletion = true;
-            Toast.makeText(getContext(), "资讯_播放完毕", Toast.LENGTH_SHORT).show();
             mCurrentPosTv.setText("进度：" + Utils.secToTime(0));
             mHandler.removeCallbacksAndMessages(null);
         }
