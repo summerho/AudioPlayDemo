@@ -7,6 +7,11 @@ public class MediaPlayListener implements MediaPlayerImp.MediaListener {
     }
 
     @Override
+    public void onPause() {
+
+    }
+
+    @Override
     public void onCompletion() {
 
     }

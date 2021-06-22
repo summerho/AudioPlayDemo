@@ -45,6 +45,8 @@ public class MediaPlayerImp {
     public interface MediaListener {
         void onPrepared();
 
+        void onPause();
+
         void onCompletion();
 
         void onSeekComplete();
@@ -53,9 +55,9 @@ public class MediaPlayerImp {
     }
 
     public interface AudioFocusChangeListener {
-        void onStart();
+        void onGainAudioFocus();
 
-        void onPause();
+        void onLossAudioFocus();
     }
 
     public MediaPlayerImp(Context context) {
@@ -75,13 +77,13 @@ public class MediaPlayerImp {
     private final AudioManager.OnAudioFocusChangeListener mAfChangeListener = focusChange -> {
         if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
             start();
-            mUIStatusListener.onStart();
+            mUIStatusListener.onGainAudioFocus();
         } else if (focusChange == AudioManager.AUDIOFOCUS_LOSS) {
             pause();
-            mUIStatusListener.onPause();
+            mUIStatusListener.onLossAudioFocus();
         } else if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT) {
             pause();
-            mUIStatusListener.onPause();
+            mUIStatusListener.onLossAudioFocus();
         }
     };
 
@@ -171,6 +173,7 @@ public class MediaPlayerImp {
             }
         } else {
             try {
+                ((MediaPlayer) mMediaPlayer).reset();
                 ((MediaPlayer) mMediaPlayer).setDataSource(strUrl);
                 ((MediaPlayer) mMediaPlayer).prepareAsync();
             } catch (IOException e) {

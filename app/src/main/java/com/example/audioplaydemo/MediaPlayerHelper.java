@@ -1,6 +1,7 @@
 package com.example.audioplaydemo;
 
 import android.content.Context;
+import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 
@@ -9,6 +10,12 @@ public class MediaPlayerHelper {
     private volatile static MediaPlayerHelper mInstance;
 
     private final MediaPlayerImp mMediaPlayerImp;
+
+    private String mPlayUrl;
+
+    private MediaPlayerImp.MediaListener mCurrentMediaListener;
+
+    private MediaPlayerImp.MediaListener mPreMediaListener;
 
     public static MediaPlayerHelper getInstance(Context context) {
         if (mInstance == null) {
@@ -30,6 +37,10 @@ public class MediaPlayerHelper {
      */
     public void setMediaListener(@NonNull MediaPlayerImp.MediaListener listener) {
         mMediaPlayerImp.setMediaListener(listener);
+        if (listener != mCurrentMediaListener) {
+            mPreMediaListener = mCurrentMediaListener;
+        }
+        mCurrentMediaListener = listener;
     }
 
     /**
@@ -49,8 +60,8 @@ public class MediaPlayerHelper {
     /**
      * 是否正在播放
      */
-    public boolean isPlaying() {
-        return mMediaPlayerImp.isPlaying();
+    public boolean isPlaying(String url) {
+        return !TextUtils.isEmpty(mPlayUrl) && mPlayUrl.equals(url) && mMediaPlayerImp.isPlaying();
     }
 
     /**
@@ -58,23 +69,30 @@ public class MediaPlayerHelper {
      * @param url 音频链接
      */
     public void play(String url) {
-//        reset();
-        stop();
+        stop(mPlayUrl);
         mMediaPlayerImp.playAsync(url);
+        mPlayUrl = url;
+        if (mPreMediaListener != null) {
+            mPreMediaListener.onPause();
+        }
     }
 
     /**
      * 继续播放
      */
-    public void start() {
-        mMediaPlayerImp.start();
+    public void start(String url) {
+        if (!TextUtils.isEmpty(mPlayUrl) && mPlayUrl.equals(url)) {
+            mMediaPlayerImp.start();
+        } else {
+            play(url);
+        }
     }
 
     /**
      * 暂停播放
      */
-    public void pause() {
-        if (isPlaying()) {
+    public void pause(String url) {
+        if (isPlaying(url)) {
             mMediaPlayerImp.pause();
         }
     }
@@ -82,8 +100,10 @@ public class MediaPlayerHelper {
     /**
      * 结束播放
      */
-    public void stop() {
-        mMediaPlayerImp.stop();
+    public void stop(String url) {
+        if (isPlaying(url)) {
+            mMediaPlayerImp.stop();
+        }
     }
 
     /**
