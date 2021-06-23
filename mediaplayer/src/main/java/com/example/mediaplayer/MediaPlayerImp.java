@@ -229,10 +229,12 @@ public class MediaPlayerImp {
                     }
                     mPlaybackState = playbackState;
                     if (playbackState == Player.STATE_READY) {
-                        seekTo(mSeekToPosition);
+                        if (mSeekToPosition != 0) {
+                            seekTo(mSeekToPosition);
+                            mSeekToPosition = 0;
+                        }
                         start();
                         mListener.onPrepared();
-                        mSeekToPosition = 0;
                     } else if (playbackState == Player.STATE_ENDED) {
                         mListener.onCompletion();
                         ((ExoPlayer) mMediaPlayer).setPlayWhenReady(false);
