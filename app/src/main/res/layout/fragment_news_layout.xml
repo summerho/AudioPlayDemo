@@ -5,13 +5,31 @@
     android:gravity="center"
     android:orientation="vertical">
 
-    <Button
-        android:id="@+id/play_btn"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="50dp"
-        android:text="play"
-        android:textSize="18dp" />
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/play_btn1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="50dp"
+            android:text="play1"
+            android:textSize="18dp" />
+
+        <Button
+            android:id="@+id/play_btn2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="30dp"
+            android:layout_marginBottom="50dp"
+            android:text="play2"
+            android:textSize="18dp" />
+
+
+    </LinearLayout>
+
 
     <LinearLayout
         android:layout_width="wrap_content"

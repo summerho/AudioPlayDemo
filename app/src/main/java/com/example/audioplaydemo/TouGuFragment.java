@@ -36,10 +36,6 @@ public class TouGuFragment extends Fragment implements View.OnClickListener {
 
     private TextView mDurationTv;
 
-    private boolean isPause = false;
-
-    private boolean isCompletion = false;
-
     private final Handler mHandler = new Handler(Looper.getMainLooper());
 
     @Nullable
@@ -66,60 +62,41 @@ public class TouGuFragment extends Fragment implements View.OnClickListener {
         mStopIv.setOnClickListener(this);
     }
 
-    private final MediaPlayerImp.MediaListener mListener = new MediaPlayerImp.MediaListener() {
+    private final MediaPlayerImp.MediaStateListener mStateListener = new MediaPlayerImp.MediaStateListener() {
         @Override
-        public void onPrepared() {
-            mStartIv.setImageResource(R.mipmap.pause_new);
-            isPause = false;
-            isCompletion = false;
-            mDurationTv.setText("时长：" + Utils.secToTime(MediaPlayerHelper.getInstance(getContext()).getDuration() / 1000));
-            mTicker.run();
-        }
-
-        @Override
-        public void onPause() {
-            mStartIv.setImageResource(R.mipmap.start_new);
-            isPause = true;
-        }
-
-        @Override
-        public void onCompletion() {
-            mStartIv.setImageResource(R.mipmap.start_new);
-            isPause = true;
-            isCompletion = true;
-            mCurrentPosTv.setText("进度：" + Utils.secToTime(0));
-            mHandler.removeCallbacksAndMessages(null);
-        }
-
-        @Override
-        public void onSeekComplete() {
-
-        }
-
-        @Override
-        public void onError() {
-            Toast.makeText(getContext(), "投顾_播放出错", Toast.LENGTH_SHORT).show();
-        }
-    };
-
-    private final MediaPlayerImp.AudioFocusChangeListener mAudioFocusChangeListener = new MediaPlayerImp.AudioFocusChangeListener() {
-        @Override
-        public void onGainAudioFocus() {
-            mStartIv.setImageResource(R.mipmap.pause_new);
-            isPause = false;
-        }
-
-        @Override
-        public void onLossAudioFocus() {
-            mStartIv.setImageResource(R.mipmap.start_new);
-            isPause = true;
+        public void onStateChanged(int state) {
+            switch (state) {
+                case MediaPlayerImp.STATE_PREPARED:
+                    mStartIv.setImageResource(R.mipmap.pause_new);
+                    mDurationTv.setText("时长：" + Utils.secToTime(MediaPlayerHelper.getInstance(getContext()).getDuration() / 1000));
+                    mTicker.run();
+                    break;
+                case MediaPlayerImp.STATE_PAUSE:
+                case MediaPlayerImp.STATE_LOSS_AUDIO_FOCUS:
+                    mStartIv.setImageResource(R.mipmap.start_new);
+                    break;
+                case MediaPlayerImp.STATE_COMPLETED:
+                    mStartIv.setImageResource(R.mipmap.start_new);
+                    mCurrentPosTv.setText("进度：" + Utils.secToTime(0));
+                    mHandler.removeCallbacksAndMessages(null);
+                    break;
+                case MediaPlayerImp.STATE_ERROR:
+                    mStartIv.setImageResource(R.mipmap.start_new);
+                    Toast.makeText(getContext(), "资讯_播放出错", Toast.LENGTH_SHORT).show();
+                    break;
+                case MediaPlayerImp.STATE_GAIN_AUDIO_FOCUS:
+                    mStartIv.setImageResource(R.mipmap.pause_new);
+                    break;
+                default:
+                    break;
+            }
         }
     };
 
     private final Runnable mTicker = new Runnable() {
         @Override
         public void run() {
-            if (!isPause) {
+            if (MediaPlayerHelper.getInstance(getContext()).isPlaying(MP3_URL)) {
                 mCurrentPosTv.setText("进度：" + Utils.secToTime(MediaPlayerHelper.getInstance(getContext()).getCurrentPosition() / 1000));
             }
             long now = SystemClock.uptimeMillis();
@@ -129,14 +106,12 @@ public class TouGuFragment extends Fragment implements View.OnClickListener {
     };
 
     private void play(String url) {
-        MediaPlayerHelper.getInstance(getContext()).setMediaListener(mListener);
-        MediaPlayerHelper.getInstance(getContext()).setAudioFocusChangeListener(mAudioFocusChangeListener);
+        MediaPlayerHelper.getInstance(getContext()).setMediaStateListener(mStateListener);
         MediaPlayerHelper.getInstance(getContext()).play(url);
     }
 
     private void start(String url) {
-        MediaPlayerHelper.getInstance(getContext()).setMediaListener(mListener);
-        MediaPlayerHelper.getInstance(getContext()).setAudioFocusChangeListener(mAudioFocusChangeListener);
+        MediaPlayerHelper.getInstance(getContext()).setMediaStateListener(mStateListener);
         MediaPlayerHelper.getInstance(getContext()).start(url);
     }
 
@@ -145,24 +120,19 @@ public class TouGuFragment extends Fragment implements View.OnClickListener {
         if (v.getId() == R.id.play_btn) {
             play(MP3_URL);
         } else if (v.getId() == R.id.start_iv) {
-            if (!MediaPlayerHelper.getInstance(getContext()).isPlaying(MP3_URL) && isCompletion) {
+            if (!MediaPlayerHelper.getInstance(getContext()).isPlaying(MP3_URL) && MediaPlayerHelper.getInstance(getContext()).isCompleted(MP3_URL)
+                    || MediaPlayerHelper.getInstance(getContext()).isStop(MP3_URL)) {
                 play(MP3_URL);
-            } else if (!MediaPlayerHelper.getInstance(getContext()).isPlaying(MP3_URL) && isPause) {
+            } else if (!MediaPlayerHelper.getInstance(getContext()).isPlaying(MP3_URL) && MediaPlayerHelper.getInstance(getContext()).isPause(MP3_URL)) {
                 start(MP3_URL);
                 mStartIv.setImageResource(R.mipmap.pause_new);
-                isPause = false;
-                isCompletion = false;
             } else if (MediaPlayerHelper.getInstance(getContext()).isPlaying(MP3_URL)) {
                 MediaPlayerHelper.getInstance(getContext()).pause(MP3_URL);
                 mStartIv.setImageResource(R.mipmap.start_new);
-                isPause = true;
-                isCompletion = false;
             }
         } else if (v.getId() == R.id.stop_iv) {
             MediaPlayerHelper.getInstance(getContext()).stop(MP3_URL);
             mStartIv.setImageResource(R.mipmap.start_new);
-            isPause = false;
-            isCompletion = true;
             mCurrentPosTv.setText("进度：" + Utils.secToTime(0));
             mHandler.removeCallbacksAndMessages(null);
         }

@@ -22,11 +22,15 @@ import com.example.mediaplayer.MediaPlayerImp;
 
 public class NewsFragment extends Fragment implements View.OnClickListener {
 
-    private static final String MP3_URL = "https://www.ytmp3.cn/down/32473.mp3";
+    private static final String MP3_URL1 = "https://www.ytmp3.cn/down/32473.mp3";
+
+    private static final String MP3_URL2 = "https://www.ytmp3.cn/down/32476.mp3";
 
     private View mView;
 
-    private Button mPlayBtn;
+    private Button mPlayBtn1;
+
+    private Button mPlayBtn2;
 
     private ImageView mStartIv;
 
@@ -36,11 +40,9 @@ public class NewsFragment extends Fragment implements View.OnClickListener {
 
     private TextView mDurationTv;
 
-    private boolean isPause = false;
-
-    private boolean isCompletion = false;
-
     private final Handler mHandler = new Handler(Looper.getMainLooper());
+
+    private String mPlayUrl;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -55,70 +57,53 @@ public class NewsFragment extends Fragment implements View.OnClickListener {
     }
 
     private void initView() {
-        mPlayBtn = mView.findViewById(R.id.play_btn);
+        mPlayBtn1 = mView.findViewById(R.id.play_btn1);
+        mPlayBtn2 = mView.findViewById(R.id.play_btn2);
         mStartIv = mView.findViewById(R.id.start_iv);
         mStopIv = mView.findViewById(R.id.stop_iv);
         mCurrentPosTv = mView.findViewById(R.id.current_pos_tv);
         mDurationTv = mView.findViewById(R.id.duration_tv);
-        mPlayBtn.setOnClickListener(this);
+        mPlayBtn1.setOnClickListener(this);
+        mPlayBtn2.setOnClickListener(this);
         mStartIv.setOnClickListener(this);
         mStopIv.setOnClickListener(this);
     }
 
-    private final MediaPlayerImp.MediaListener mListener = new MediaPlayerImp.MediaListener() {
+    private final MediaPlayerImp.MediaStateListener mStateListener = new MediaPlayerImp.MediaStateListener() {
         @Override
-        public void onPrepared() {
-            mStartIv.setImageResource(R.mipmap.pause);
-            isPause = false;
-            isCompletion = false;
-            mDurationTv.setText("时长：" + Utils.secToTime(MediaPlayerHelper.getInstance(getContext()).getDuration() / 1000));
-            mTicker.run();
-        }
-
-        @Override
-        public void onPause() {
-            mStartIv.setImageResource(R.mipmap.start);
-            isPause = true;
-        }
-
-        @Override
-        public void onCompletion() {
-            mStartIv.setImageResource(R.mipmap.start);
-            isPause = true;
-            isCompletion = true;
-            mCurrentPosTv.setText("进度：" + Utils.secToTime(0));
-            mHandler.removeCallbacksAndMessages(null);
-        }
-
-        @Override
-        public void onSeekComplete() {
-
-        }
-
-        @Override
-        public void onError() {
-            Toast.makeText(getContext(), "资讯_播放出错", Toast.LENGTH_SHORT).show();
-        }
-    };
-
-    private final MediaPlayerImp.AudioFocusChangeListener mAudioFocusChangeListener = new MediaPlayerImp.AudioFocusChangeListener() {
-        @Override
-        public void onGainAudioFocus() {
-            mStartIv.setImageResource(R.mipmap.pause);
-            isPause = false;
-        }
-
-        @Override
-        public void onLossAudioFocus() {
-            mStartIv.setImageResource(R.mipmap.start);
-            isPause = true;
+        public void onStateChanged(int state) {
+            switch (state) {
+                case MediaPlayerImp.STATE_PREPARED:
+                    mStartIv.setImageResource(R.mipmap.pause);
+                    mDurationTv.setText("时长：" + Utils.secToTime(MediaPlayerHelper.getInstance(getContext()).getDuration() / 1000));
+                    mTicker.run();
+                    break;
+                case MediaPlayerImp.STATE_PAUSE:
+                case MediaPlayerImp.STATE_LOSS_AUDIO_FOCUS:
+                    mStartIv.setImageResource(R.mipmap.start);
+                    break;
+                case MediaPlayerImp.STATE_COMPLETED:
+                    mStartIv.setImageResource(R.mipmap.start);
+                    mCurrentPosTv.setText("进度：" + Utils.secToTime(0));
+                    mHandler.removeCallbacksAndMessages(null);
+                    break;
+                case MediaPlayerImp.STATE_ERROR:
+                    mStartIv.setImageResource(R.mipmap.start);
+                    Toast.makeText(getContext(), "资讯_播放出错", Toast.LENGTH_SHORT).show();
+                    break;
+                case MediaPlayerImp.STATE_GAIN_AUDIO_FOCUS:
+                    mStartIv.setImageResource(R.mipmap.pause);
+                    break;
+                default:
+                    break;
+            }
         }
     };
 
     private final Runnable mTicker = new Runnable() {
         @Override
         public void run() {
-            if (!isPause) {
+            if (MediaPlayerHelper.getInstance(getContext()).isPlaying(mPlayUrl)) {
                 mCurrentPosTv.setText("进度：" + Utils.secToTime(MediaPlayerHelper.getInstance(getContext()).getCurrentPosition() / 1000));
             }
             long now = SystemClock.uptimeMillis();
@@ -128,40 +113,36 @@ public class NewsFragment extends Fragment implements View.OnClickListener {
     };
 
     private void play(String url) {
-        MediaPlayerHelper.getInstance(getContext()).setMediaListener(mListener);
-        MediaPlayerHelper.getInstance(getContext()).setAudioFocusChangeListener(mAudioFocusChangeListener);
+        MediaPlayerHelper.getInstance(getContext()).setMediaStateListener(mStateListener);
         MediaPlayerHelper.getInstance(getContext()).play(url);
+        mPlayUrl = url;
     }
 
     private void start(String url) {
-        MediaPlayerHelper.getInstance(getContext()).setMediaListener(mListener);
-        MediaPlayerHelper.getInstance(getContext()).setAudioFocusChangeListener(mAudioFocusChangeListener);
+        MediaPlayerHelper.getInstance(getContext()).setMediaStateListener(mStateListener);
         MediaPlayerHelper.getInstance(getContext()).start(url);
     }
 
     @Override
     public void onClick(View v) {
-        if (v.getId() == R.id.play_btn) {
-            play(MP3_URL);
+        if (v.getId() == R.id.play_btn1) {
+            play(MP3_URL1);
+        } else if (v.getId() == R.id.play_btn2) {
+            play(MP3_URL2);
         } else if (v.getId() == R.id.start_iv) {
-            if (!MediaPlayerHelper.getInstance(getContext()).isPlaying(MP3_URL) && isCompletion) {
-                play(MP3_URL);
-            } else if (!MediaPlayerHelper.getInstance(getContext()).isPlaying(MP3_URL) && isPause) {
-                start(MP3_URL);
+            if (!MediaPlayerHelper.getInstance(getContext()).isPlaying(mPlayUrl) && MediaPlayerHelper.getInstance(getContext()).isCompleted(mPlayUrl)
+                    || MediaPlayerHelper.getInstance(getContext()).isStop(mPlayUrl)) {
+                play(mPlayUrl);
+            } else if (!MediaPlayerHelper.getInstance(getContext()).isPlaying(mPlayUrl) && MediaPlayerHelper.getInstance(getContext()).isPause(mPlayUrl)) {
+                start(mPlayUrl);
                 mStartIv.setImageResource(R.mipmap.pause);
-                isPause = false;
-                isCompletion = false;
-            } else if (MediaPlayerHelper.getInstance(getContext()).isPlaying(MP3_URL)) {
-                MediaPlayerHelper.getInstance(getContext()).pause(MP3_URL);
+            } else if (MediaPlayerHelper.getInstance(getContext()).isPlaying(mPlayUrl)) {
+                MediaPlayerHelper.getInstance(getContext()).pause(mPlayUrl);
                 mStartIv.setImageResource(R.mipmap.start);
-                isPause = true;
-                isCompletion = false;
             }
         } else if (v.getId() == R.id.stop_iv) {
-            MediaPlayerHelper.getInstance(getContext()).stop(MP3_URL);
+            MediaPlayerHelper.getInstance(getContext()).stop(mPlayUrl);
             mStartIv.setImageResource(R.mipmap.start);
-            isPause = false;
-            isCompletion = true;
             mCurrentPosTv.setText("进度：" + Utils.secToTime(0));
             mHandler.removeCallbacksAndMessages(null);
         }

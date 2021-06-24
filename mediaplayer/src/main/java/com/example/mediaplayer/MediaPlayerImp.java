@@ -21,19 +21,34 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import static android.content.Context.AUDIO_SERVICE;
 
 public class MediaPlayerImp {
 
-    private AudioManager mAm;
+    public static final int STATE_PREPARED = 0;
 
-    private MediaListener mListener;
+    public static final int STATE_PAUSE = 1;
 
-    private AudioFocusChangeListener mUIStatusListener;
+    public static final int STATE_COMPLETED = 2;
+
+    public static final int STATE_ERROR = 3;
+
+    public static final int STATE_GAIN_AUDIO_FOCUS = 4;
+
+    public static final int STATE_LOSS_AUDIO_FOCUS = 5;
+
+    private final AudioManager mAm;
+
+    private MediaStateListener mStateListener;
 
     private final Context mContext;
 
+    /**
+     * 是否是谷歌开源的ExoPlayer播放器
+     */
     private final boolean isExoPLayer;
 
     private final Object mMediaPlayer;
@@ -42,24 +57,20 @@ public class MediaPlayerImp {
 
     private int mPlaybackState = -1;
 
+    /**
+     * 继续播放的位置
+     */
     private long mSeekToPosition;
 
-    public interface MediaListener {
-        void onPrepared();
+    /**
+     * 当前播放的链接
+     */
+    private String mPlayUrl;
 
-        void onPause();
+    private final Map<String, MediaBean> mMediaMap = new HashMap<>();
 
-        void onCompletion();
-
-        void onSeekComplete();
-
-        void onError();
-    }
-
-    public interface AudioFocusChangeListener {
-        void onGainAudioFocus();
-
-        void onLossAudioFocus();
+    public interface MediaStateListener {
+        void onStateChanged(int state);
     }
 
     public MediaPlayerImp(Context context) {
@@ -79,13 +90,13 @@ public class MediaPlayerImp {
     private final AudioManager.OnAudioFocusChangeListener mAfChangeListener = focusChange -> {
         if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
             start();
-            mUIStatusListener.onGainAudioFocus();
+            mStateListener.onStateChanged(STATE_GAIN_AUDIO_FOCUS);
         } else if (focusChange == AudioManager.AUDIOFOCUS_LOSS) {
             pause();
-            mUIStatusListener.onLossAudioFocus();
+            mStateListener.onStateChanged(STATE_LOSS_AUDIO_FOCUS);
         } else if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT) {
             pause();
-            mUIStatusListener.onLossAudioFocus();
+            mStateListener.onStateChanged(STATE_LOSS_AUDIO_FOCUS);
         }
     };
 
@@ -104,13 +115,43 @@ public class MediaPlayerImp {
             ((MediaPlayer) mMediaPlayer).reset();
         }
     }
-
+    /**
+     * 是否正在播放
+     */
     public boolean isPlaying() {
         if (isExoPLayer) {
             return ((ExoPlayer) mMediaPlayer).getPlayWhenReady();
         } else {
             return ((MediaPlayer) mMediaPlayer).isPlaying();
         }
+    }
+
+    /**
+     * 是否处于暂停状态
+     */
+    public boolean isPause(String url) {
+        MediaBean bean = mMediaMap.get(url);
+        return bean != null && bean.isPause;
+    }
+
+    /**
+     * 是否处于播放结束状态
+     */
+    public boolean isCompleted(String url) {
+        MediaBean bean = mMediaMap.get(url);
+        return bean != null && bean.isCompleted;
+    }
+
+    /**
+     * 是否处于播放停止状态
+     */
+    public boolean isStop(String url) {
+        MediaBean bean = mMediaMap.get(url);
+        return bean != null && bean.isStop;
+    }
+
+    public MediaBean getMediaBean(String url) {
+        return mMediaMap.get(url);
     }
 
     public void start() {
@@ -130,6 +171,7 @@ public class MediaPlayerImp {
         } else {
             ((MediaPlayer) mMediaPlayer).pause();
         }
+        updateMediaStatus(true, false, false);
     }
 
     public void stop() {
@@ -139,6 +181,7 @@ public class MediaPlayerImp {
         } else {
             ((MediaPlayer) mMediaPlayer).stop();
         }
+        updateMediaStatus(false, false, true);
     }
 
     public void release() {
@@ -162,6 +205,7 @@ public class MediaPlayerImp {
         if (!requestFocus()) {
             return;
         }
+        mPlayUrl = strUrl;
         if (isExoPLayer) {
             DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(mContext, "MediaPlayerImp");
             if (strUrl.endsWith("m3u8")) {
@@ -200,12 +244,8 @@ public class MediaPlayerImp {
         }
     }
 
-    public void setMediaListener(@NonNull MediaListener listener) {
-        this.mListener = listener;
-    }
-
-    public void setAudioFocusChangeListener(@NonNull AudioFocusChangeListener listener) {
-        mUIStatusListener = listener;
+    public void setMediaStateListener(@NonNull MediaStateListener listener) {
+        mStateListener = listener;
     }
 
     /**
@@ -234,21 +274,22 @@ public class MediaPlayerImp {
                             mSeekToPosition = 0;
                         }
                         start();
-                        mListener.onPrepared();
+                        mStateListener.onStateChanged(STATE_PREPARED);
+                        updateMediaStatus(false, false, false);
                     } else if (playbackState == Player.STATE_ENDED) {
-                        mListener.onCompletion();
+                        mStateListener.onStateChanged(STATE_COMPLETED);
                         ((ExoPlayer) mMediaPlayer).setPlayWhenReady(false);
+                        updateMediaStatus(false, true, false);
                     }
                 }
 
                 @Override
                 public void onPlayerError(ExoPlaybackException error) {
-                    mListener.onError();
+                    mStateListener.onStateChanged(STATE_ERROR);
                 }
 
                 @Override
                 public void onSeekProcessed() {
-                    mListener.onSeekComplete();
                 }
             };
             exoPlayer.addListener(mExoPlayerListener);
@@ -258,22 +299,40 @@ public class MediaPlayerImp {
             mediaPlayer.setOnPreparedListener((mp) -> {
                 seekTo(mSeekToPosition);
                 start();
-                mListener.onPrepared();
+                mStateListener.onStateChanged(STATE_PREPARED);
                 mSeekToPosition = 0;
-
+                updateMediaStatus(false, false, false);
             });
             mediaPlayer.setOnErrorListener((mp, what, extra) -> {
-                mListener.onError();
+                mStateListener.onStateChanged(STATE_ERROR);
                 return true;
             });
             mediaPlayer.setOnCompletionListener((mp) -> {
-                mListener.onCompletion();
+                mStateListener.onStateChanged(STATE_COMPLETED);
+                updateMediaStatus(false, true, false);
             });
             mediaPlayer.setOnSeekCompleteListener((mp) -> {
-                mListener.onSeekComplete();
             });
             return mediaPlayer;
         }
+    }
+
+    private void updateMediaStatus(boolean isPause, boolean isCompleted, boolean isStop) {
+        updateMediaStatus(mPlayUrl, isPause, isCompleted, isStop);
+    }
+
+    public void updateMediaStatus(String url, boolean isPause, boolean isCompleted, boolean isStop) {
+        MediaBean bean = mMediaMap.get(url);
+        if (bean == null) {
+            bean = new MediaBean(url);
+            bean.stateListener = mStateListener;
+        } else {
+            bean.isPause = isPause;
+            bean.isCompleted = isCompleted;
+            bean.isStop = isStop;
+            bean.pausePosition = getCurrentPosition();
+        }
+        mMediaMap.put(url, bean);
     }
 
 }

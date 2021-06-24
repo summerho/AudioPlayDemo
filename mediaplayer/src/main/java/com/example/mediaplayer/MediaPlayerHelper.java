@@ -19,21 +19,6 @@ public class MediaPlayerHelper {
      */
     private String mPlayUrl;
 
-    /**
-     * 当前音频监听器
-     */
-    private MediaPlayerImp.MediaListener mCurrentMediaListener;
-
-    /**
-     * 前一个音频监听器
-     */
-    private MediaPlayerImp.MediaListener mPreMediaListener;
-
-    /**
-     * 被暂停时的播放进度，用来从此位置继续播放
-     */
-    private long mPreMediaPlayPosition;
-
     public static MediaPlayerHelper getInstance(Context context) {
         if (mInstance == null) {
             synchronized (MediaPlayerHelper.class) {
@@ -46,25 +31,11 @@ public class MediaPlayerHelper {
     }
 
     private MediaPlayerHelper(Context context) {
-        mMediaPlayerImp = new MediaPlayerImp(context);
+        mMediaPlayerImp = new MediaPlayerImp(context, true);
     }
 
-    /**
-     * 设置状态监听
-     */
-    public void setMediaListener(@NonNull MediaPlayerImp.MediaListener listener) {
-        mMediaPlayerImp.setMediaListener(listener);
-        if (listener != mCurrentMediaListener) {
-            mPreMediaListener = mCurrentMediaListener;
-        }
-        mCurrentMediaListener = listener;
-    }
-
-    /**
-     * 设置得到或失去音频焦点时的监听
-     */
-    public void setAudioFocusChangeListener(@NonNull MediaPlayerImp.AudioFocusChangeListener listener) {
-        mMediaPlayerImp.setAudioFocusChangeListener(listener);
+    public void setMediaStateListener(@NonNull MediaPlayerImp.MediaStateListener listener) {
+        mMediaPlayerImp.setMediaStateListener(listener);
     }
 
     /**
@@ -82,16 +53,39 @@ public class MediaPlayerHelper {
     }
 
     /**
+     * 是否处于暂停状态
+     */
+    public boolean isPause(String url) {
+        return mMediaPlayerImp.isPause(url);
+    }
+
+    /**
+     * 是否处于播放结束状态
+     */
+    public boolean isCompleted(String url) {
+        return mMediaPlayerImp.isCompleted(url);
+    }
+
+    /**
+     * 是否处于播放停止状态
+     */
+    public boolean isStop(String url) {
+        return mMediaPlayerImp.isStop(url);
+    }
+
+    /**
      * 开始播放
      * @param url 音频链接
      */
     public void play(String url) {
         stop(mPlayUrl);
-        if (mPreMediaListener != null) {
-            mPreMediaListener.onPause(); // 更新上一个音频页面的UI
+        // 更新被暂停音频页面的UI
+        if (mMediaPlayerImp.getMediaBean(mPlayUrl) != null && mMediaPlayerImp.getMediaBean(mPlayUrl).stateListener != null) {
+            mMediaPlayerImp.getMediaBean(mPlayUrl).stateListener.onStateChanged(MediaPlayerImp.STATE_PAUSE);
         }
         if (TextUtils.isEmpty(mPlayUrl) || !mPlayUrl.equals(url)) {
-            mPreMediaPlayPosition = getCurrentPosition(); // 记录上一个音频被暂停时的播放进度
+            // 记录被暂停音频的状态及播放进度，用于下次继续播放
+            mMediaPlayerImp.updateMediaStatus(mPlayUrl, true, false, false);
         }
         mMediaPlayerImp.playAsync(url);
         mPlayUrl = url;
@@ -104,7 +98,8 @@ public class MediaPlayerHelper {
         if (!TextUtils.isEmpty(mPlayUrl) && mPlayUrl.equals(url)) { // 同一个音频，继续播放
             mMediaPlayerImp.start();
         } else { // 不同音频，继续播放
-            mMediaPlayerImp.setSeekToPosition(mPreMediaPlayPosition);
+            long pausePosition = mMediaPlayerImp.getMediaBean(url) == null ? 0 : mMediaPlayerImp.getMediaBean(url).pausePosition;
+            mMediaPlayerImp.setSeekToPosition(pausePosition);
             play(url);
         }
     }
