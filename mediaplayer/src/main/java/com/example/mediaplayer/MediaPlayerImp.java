@@ -28,16 +28,34 @@ import static android.content.Context.AUDIO_SERVICE;
 
 public class MediaPlayerImp {
 
+    /**
+     * 就绪
+     */
     public static final int STATE_PREPARED = 0;
 
+    /**
+     * 暂停
+     */
     public static final int STATE_PAUSE = 1;
 
+    /**
+     * 结束
+     */
     public static final int STATE_COMPLETED = 2;
 
+    /**
+     * 错误
+     */
     public static final int STATE_ERROR = 3;
 
+    /**
+     * 获得音频焦点
+     */
     public static final int STATE_GAIN_AUDIO_FOCUS = 4;
 
+    /**
+     * 失去音频焦点
+     */
     public static final int STATE_LOSS_AUDIO_FOCUS = 5;
 
     private final AudioManager mAm;
