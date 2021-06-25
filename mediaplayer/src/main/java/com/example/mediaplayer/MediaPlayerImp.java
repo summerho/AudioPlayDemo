@@ -108,7 +108,7 @@ public class MediaPlayerImp {
         return result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
     }
 
-    public void reset() {
+    protected void reset() {
         if (isExoPLayer) {
             //no reset do nothing
         } else {
@@ -118,7 +118,7 @@ public class MediaPlayerImp {
     /**
      * 是否正在播放
      */
-    public boolean isPlaying() {
+    protected boolean isPlaying() {
         if (isExoPLayer) {
             return ((ExoPlayer) mMediaPlayer).getPlayWhenReady();
         } else {
@@ -129,7 +129,7 @@ public class MediaPlayerImp {
     /**
      * 是否处于暂停状态
      */
-    public boolean isPause(String url) {
+    protected boolean isPause(String url) {
         MediaBean bean = mMediaMap.get(url);
         return bean != null && bean.isPause;
     }
@@ -137,7 +137,7 @@ public class MediaPlayerImp {
     /**
      * 是否处于播放结束状态
      */
-    public boolean isCompleted(String url) {
+    protected boolean isCompleted(String url) {
         MediaBean bean = mMediaMap.get(url);
         return bean != null && bean.isCompleted;
     }
@@ -145,16 +145,16 @@ public class MediaPlayerImp {
     /**
      * 是否处于播放停止状态
      */
-    public boolean isStop(String url) {
+    protected boolean isStop(String url) {
         MediaBean bean = mMediaMap.get(url);
         return bean != null && bean.isStop;
     }
 
-    public MediaBean getMediaBean(String url) {
+    protected MediaBean getMediaBean(String url) {
         return mMediaMap.get(url);
     }
 
-    public void start() {
+    protected void start() {
         if (!requestFocus()) {
             return;
         }
@@ -165,7 +165,7 @@ public class MediaPlayerImp {
         }
     }
 
-    public void pause() {
+    protected void pause() {
         if (isExoPLayer) {
             ((ExoPlayer) mMediaPlayer).setPlayWhenReady(false);
         } else {
@@ -174,7 +174,7 @@ public class MediaPlayerImp {
         updateMediaStatus(true, false, false);
     }
 
-    public void stop() {
+    protected void stop() {
         if (isExoPLayer) {
             ((ExoPlayer) mMediaPlayer).setPlayWhenReady(false);
             ((ExoPlayer) mMediaPlayer).stop();
@@ -184,7 +184,7 @@ public class MediaPlayerImp {
         updateMediaStatus(false, false, true);
     }
 
-    public void release() {
+    protected void release() {
         if (isExoPLayer) {
             ((ExoPlayer) mMediaPlayer).removeListener(mExoPlayerListener);
             ((ExoPlayer) mMediaPlayer).release();
@@ -193,7 +193,7 @@ public class MediaPlayerImp {
         }
     }
 
-    public void seekTo(long msec) {
+    protected void seekTo(long msec) {
         if (isExoPLayer) {
             ((ExoPlayer) mMediaPlayer).seekTo(msec);
         } else {
@@ -201,7 +201,7 @@ public class MediaPlayerImp {
         }
     }
 
-    public void playAsync(String strUrl) {
+    protected void playAsync(String strUrl) {
         if (!requestFocus()) {
             return;
         }
@@ -228,7 +228,7 @@ public class MediaPlayerImp {
         }
     }
 
-    public long getDuration() {
+    protected long getDuration() {
         if (isExoPLayer) {
             return ((ExoPlayer) mMediaPlayer).getDuration();
         } else {
@@ -236,7 +236,7 @@ public class MediaPlayerImp {
         }
     }
 
-    public long getCurrentPosition() {
+    protected long getCurrentPosition() {
         if (isExoPLayer) {
             return ((ExoPlayer) mMediaPlayer).getCurrentPosition();
         } else {
@@ -244,7 +244,7 @@ public class MediaPlayerImp {
         }
     }
 
-    public void setMediaStateListener(@NonNull MediaStateListener listener) {
+    protected void setMediaStateListener(@NonNull MediaStateListener listener) {
         mStateListener = listener;
     }
 
@@ -252,7 +252,7 @@ public class MediaPlayerImp {
      * 设置下次继续播放的位置
      * @param position
      */
-    public void setSeekToPosition(long position) {
+    protected void setSeekToPosition(long position) {
         mSeekToPosition = position;
     }
 
@@ -321,7 +321,7 @@ public class MediaPlayerImp {
         updateMediaStatus(mPlayUrl, isPause, isCompleted, isStop);
     }
 
-    public void updateMediaStatus(String url, boolean isPause, boolean isCompleted, boolean isStop) {
+    protected void updateMediaStatus(String url, boolean isPause, boolean isCompleted, boolean isStop) {
         MediaBean bean = mMediaMap.get(url);
         if (bean == null) {
             bean = new MediaBean(url);
