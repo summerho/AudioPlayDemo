@@ -110,11 +110,6 @@ public class TouGuFragment extends Fragment implements View.OnClickListener {
         MediaPlayerHelper.getInstance(getContext()).play(url);
     }
 
-    private void start(String url) {
-        MediaPlayerHelper.getInstance(getContext()).setMediaStateListener(mStateListener);
-        MediaPlayerHelper.getInstance(getContext()).start(url);
-    }
-
     @Override
     public void onClick(View v) {
         if (v.getId() == R.id.play_btn) {
@@ -124,7 +119,7 @@ public class TouGuFragment extends Fragment implements View.OnClickListener {
                     || MediaPlayerHelper.getInstance(getContext()).isStop(MP3_URL)) {
                 play(MP3_URL);
             } else if (!MediaPlayerHelper.getInstance(getContext()).isPlaying(MP3_URL) && MediaPlayerHelper.getInstance(getContext()).isPause(MP3_URL)) {
-                start(MP3_URL);
+                MediaPlayerHelper.getInstance(getContext()).start(MP3_URL);
                 mStartIv.setImageResource(R.mipmap.pause_new);
             } else if (MediaPlayerHelper.getInstance(getContext()).isPlaying(MP3_URL)) {
                 MediaPlayerHelper.getInstance(getContext()).pause(MP3_URL);

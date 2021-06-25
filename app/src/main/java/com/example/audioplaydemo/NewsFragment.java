@@ -118,11 +118,6 @@ public class NewsFragment extends Fragment implements View.OnClickListener {
         mPlayUrl = url;
     }
 
-    private void start(String url) {
-        MediaPlayerHelper.getInstance(getContext()).setMediaStateListener(mStateListener);
-        MediaPlayerHelper.getInstance(getContext()).start(url);
-    }
-
     @Override
     public void onClick(View v) {
         if (v.getId() == R.id.play_btn1) {
@@ -134,7 +129,7 @@ public class NewsFragment extends Fragment implements View.OnClickListener {
                     || MediaPlayerHelper.getInstance(getContext()).isStop(mPlayUrl)) {
                 play(mPlayUrl);
             } else if (!MediaPlayerHelper.getInstance(getContext()).isPlaying(mPlayUrl) && MediaPlayerHelper.getInstance(getContext()).isPause(mPlayUrl)) {
-                start(mPlayUrl);
+                MediaPlayerHelper.getInstance(getContext()).start(mPlayUrl);
                 mStartIv.setImageResource(R.mipmap.pause);
             } else if (MediaPlayerHelper.getInstance(getContext()).isPlaying(mPlayUrl)) {
                 MediaPlayerHelper.getInstance(getContext()).pause(mPlayUrl);

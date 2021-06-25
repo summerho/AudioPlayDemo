@@ -98,6 +98,8 @@ public class MediaPlayerHelper {
         if (!TextUtils.isEmpty(mPlayUrl) && mPlayUrl.equals(url)) { // 同一个音频，继续播放
             mMediaPlayerImp.start();
         } else { // 不同音频，继续播放
+            MediaPlayerImp.MediaStateListener stateListener = mMediaPlayerImp.getMediaBean(url).stateListener;
+            mMediaPlayerImp.setMediaStateListener(stateListener);
             long pausePosition = mMediaPlayerImp.getMediaBean(url) == null ? 0 : mMediaPlayerImp.getMediaBean(url).pausePosition;
             mMediaPlayerImp.setSeekToPosition(pausePosition);
             play(url);
