@@ -115,10 +115,9 @@ public class TouGuFragment extends Fragment implements View.OnClickListener {
         if (v.getId() == R.id.play_btn) {
             play(MP3_URL);
         } else if (v.getId() == R.id.start_iv) {
-            if (!MediaPlayerHelper.getInstance(getContext()).isPlaying(MP3_URL) && MediaPlayerHelper.getInstance(getContext()).isCompleted(MP3_URL)
-                    || MediaPlayerHelper.getInstance(getContext()).isStop(MP3_URL)) {
+            if (MediaPlayerHelper.getInstance(getContext()).isCompleted(MP3_URL) || MediaPlayerHelper.getInstance(getContext()).isStop(MP3_URL)) {
                 play(MP3_URL);
-            } else if (!MediaPlayerHelper.getInstance(getContext()).isPlaying(MP3_URL) && MediaPlayerHelper.getInstance(getContext()).isPause(MP3_URL)) {
+            } else if (MediaPlayerHelper.getInstance(getContext()).isPause(MP3_URL)) {
                 MediaPlayerHelper.getInstance(getContext()).start(MP3_URL);
                 mStartIv.setImageResource(R.mipmap.pause_new);
             } else if (MediaPlayerHelper.getInstance(getContext()).isPlaying(MP3_URL)) {

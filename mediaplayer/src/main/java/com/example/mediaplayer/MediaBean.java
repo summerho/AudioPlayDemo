@@ -4,13 +4,9 @@ public class MediaBean {
 
     public String url;
 
-    public long pausePosition;
+    public long pausePosition = 0;
 
-    public boolean isPause;
-
-    public boolean isCompleted;
-
-    public boolean isStop;
+    public int state = -1;
 
     public MediaPlayerImp.MediaStateListener stateListener;
 

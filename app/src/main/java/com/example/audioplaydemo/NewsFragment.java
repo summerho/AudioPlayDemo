@@ -125,10 +125,9 @@ public class NewsFragment extends Fragment implements View.OnClickListener {
         } else if (v.getId() == R.id.play_btn2) {
             play(MP3_URL2);
         } else if (v.getId() == R.id.start_iv) {
-            if (!MediaPlayerHelper.getInstance(getContext()).isPlaying(mPlayUrl) && MediaPlayerHelper.getInstance(getContext()).isCompleted(mPlayUrl)
-                    || MediaPlayerHelper.getInstance(getContext()).isStop(mPlayUrl)) {
+            if (MediaPlayerHelper.getInstance(getContext()).isCompleted(mPlayUrl) || MediaPlayerHelper.getInstance(getContext()).isStop(mPlayUrl)) {
                 play(mPlayUrl);
-            } else if (!MediaPlayerHelper.getInstance(getContext()).isPlaying(mPlayUrl) && MediaPlayerHelper.getInstance(getContext()).isPause(mPlayUrl)) {
+            } else if (MediaPlayerHelper.getInstance(getContext()).isPause(mPlayUrl)) {
                 MediaPlayerHelper.getInstance(getContext()).start(mPlayUrl);
                 mStartIv.setImageResource(R.mipmap.pause);
             } else if (MediaPlayerHelper.getInstance(getContext()).isPlaying(mPlayUrl)) {

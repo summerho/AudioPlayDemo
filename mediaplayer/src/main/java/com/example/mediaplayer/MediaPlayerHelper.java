@@ -74,6 +74,13 @@ public class MediaPlayerHelper {
     }
 
     /**
+     * 是否处于播放错误状态
+     */
+    public boolean isError(String url) {
+        return mMediaPlayerImp.isError(url);
+    }
+
+    /**
      * 开始播放
      * @param url 音频链接
      */
@@ -85,7 +92,7 @@ public class MediaPlayerHelper {
         }
         if (TextUtils.isEmpty(mPlayUrl) || !mPlayUrl.equals(url)) {
             // 记录被暂停音频的状态及播放进度，用于下次继续播放
-            mMediaPlayerImp.updateMediaStatus(mPlayUrl, true, false, false);
+            mMediaPlayerImp.updateMediaState(mPlayUrl, MediaPlayerImp.STATE_PAUSE);
         }
         mMediaPlayerImp.playAsync(url);
         mPlayUrl = url;
@@ -95,9 +102,9 @@ public class MediaPlayerHelper {
      * 继续播放
      */
     public void start(String url) {
-        if (!TextUtils.isEmpty(mPlayUrl) && mPlayUrl.equals(url)) { // 同一个音频，继续播放
+        if (!TextUtils.isEmpty(mPlayUrl) && mPlayUrl.equals(url) && !mMediaPlayerImp.isError(mPlayUrl)) { // 同一个音频，继续播放
             mMediaPlayerImp.start();
-        } else { // 不同音频，继续播放
+        } else { // 不同音频，继续播放；或者是Error状态时，需要重新prepare后才能继续播放
             MediaPlayerImp.MediaStateListener stateListener = mMediaPlayerImp.getMediaBean(url).stateListener;
             mMediaPlayerImp.setMediaStateListener(stateListener);
             long pausePosition = mMediaPlayerImp.getMediaBean(url) == null ? 0 : mMediaPlayerImp.getMediaBean(url).pausePosition;
