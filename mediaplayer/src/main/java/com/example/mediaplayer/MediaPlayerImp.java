@@ -131,6 +131,15 @@ public class MediaPlayerImp {
         return result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
     }
 
+    /**
+     * 释放音频焦点
+     */
+    private void abandonAudioFocus() {
+        if (mAm != null) {
+            mAm.abandonAudioFocus(mAfChangeListener);
+        }
+    }
+
     protected void reset() {
         if (isExoPLayer) {
             //no reset do nothing
@@ -194,6 +203,7 @@ public class MediaPlayerImp {
         } else {
             ((MediaPlayer) mMediaPlayer).start();
         }
+        updateMediaState(STATE_PREPARED);
     }
 
     protected void pause() {
@@ -203,6 +213,7 @@ public class MediaPlayerImp {
             ((MediaPlayer) mMediaPlayer).pause();
         }
         updateMediaState(STATE_PAUSE);
+        abandonAudioFocus();
     }
 
     protected void stop() {
@@ -213,6 +224,7 @@ public class MediaPlayerImp {
             ((MediaPlayer) mMediaPlayer).stop();
         }
         updateMediaState(STATE_STOP);
+        abandonAudioFocus();
     }
 
     protected void release() {
