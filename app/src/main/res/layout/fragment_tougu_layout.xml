@@ -52,4 +52,29 @@
         android:textSize="14dp"
         android:textColor="#000000"/>
 
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
+        android:orientation="horizontal" >
+
+        <EditText
+            android:id="@+id/edit_tv"
+            android:layout_width="150dp"
+            android:layout_height="40dp"
+            android:gravity="center"
+            android:hint="输入跳转的位置（秒）"
+            android:textSize="14dp"
+            android:textColor="#FF2196F3" />
+
+        <Button
+            android:id="@+id/seek_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="30dp"
+            android:text="seek"
+            android:textSize="18dp" />
+    </LinearLayout>
+
+
 </LinearLayout>

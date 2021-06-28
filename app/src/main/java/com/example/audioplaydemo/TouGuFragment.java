@@ -4,10 +4,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -36,6 +38,10 @@ public class TouGuFragment extends Fragment implements View.OnClickListener {
 
     private TextView mDurationTv;
 
+    private EditText mEditText;
+
+    private Button mSeekBtn;
+
     private final Handler mHandler = new Handler(Looper.getMainLooper());
 
     @Nullable
@@ -57,9 +63,12 @@ public class TouGuFragment extends Fragment implements View.OnClickListener {
         mStopIv = mView.findViewById(R.id.stop_iv);
         mCurrentPosTv = mView.findViewById(R.id.current_pos_tv);
         mDurationTv = mView.findViewById(R.id.duration_tv);
+        mEditText = mView.findViewById(R.id.edit_tv);
+        mSeekBtn = mView.findViewById(R.id.seek_btn);
         mPlayBtn.setOnClickListener(this);
         mStartIv.setOnClickListener(this);
         mStopIv.setOnClickListener(this);
+        mSeekBtn.setOnClickListener(this);
     }
 
     private final MediaPlayerImp.MediaStateListener mStateListener = new MediaPlayerImp.MediaStateListener() {
@@ -129,6 +138,12 @@ public class TouGuFragment extends Fragment implements View.OnClickListener {
             mStartIv.setImageResource(R.mipmap.start_new);
             mCurrentPosTv.setText("进度：" + Utils.secToTime(0));
             mHandler.removeCallbacksAndMessages(null);
+        } else if (v.getId() == R.id.seek_btn) {
+            if (TextUtils.isEmpty(mEditText.getText().toString())) {
+                return;
+            }
+            MediaPlayerHelper.getInstance(getContext()).setMediaStateListener(mStateListener);
+            MediaPlayerHelper.getInstance(getContext()).seekTo(MP3_URL, Integer.parseInt(mEditText.getText().toString()) * 1000);
         }
     }
 }

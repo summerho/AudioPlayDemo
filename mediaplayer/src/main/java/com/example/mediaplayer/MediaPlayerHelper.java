@@ -142,8 +142,13 @@ public class MediaPlayerHelper {
      * 指定时间位置播放
      * @param msec 毫秒
      */
-    public void seekTo(long msec) {
-        mMediaPlayerImp.seekTo(msec);
+    public void seekTo(String url, long msec) {
+        if (!TextUtils.isEmpty(mPlayUrl) && mPlayUrl.equals(url)) {
+            mMediaPlayerImp.seekTo(msec);
+        } else {
+            mMediaPlayerImp.setSeekToPosition(msec);
+            play(url);
+        }
     }
 
     /**
