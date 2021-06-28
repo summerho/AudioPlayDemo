@@ -119,6 +119,11 @@ public class TouGuFragment extends Fragment implements View.OnClickListener {
         MediaPlayerHelper.getInstance(getContext()).play(url);
     }
 
+    private void seekTo(String url, long mesc) {
+        MediaPlayerHelper.getInstance(getContext()).setMediaStateListener(mStateListener);
+        MediaPlayerHelper.getInstance(getContext()).seekTo(url, mesc);
+    }
+
     @Override
     public void onClick(View v) {
         if (v.getId() == R.id.play_btn) {
@@ -142,8 +147,7 @@ public class TouGuFragment extends Fragment implements View.OnClickListener {
             if (TextUtils.isEmpty(mEditText.getText().toString())) {
                 return;
             }
-            MediaPlayerHelper.getInstance(getContext()).setMediaStateListener(mStateListener);
-            MediaPlayerHelper.getInstance(getContext()).seekTo(MP3_URL, Integer.parseInt(mEditText.getText().toString()) * 1000);
+            seekTo(MP3_URL, Integer.parseInt(mEditText.getText().toString()) * 1000);
         }
     }
 }
