@@ -76,6 +76,9 @@ public class TouGuFragment extends Fragment implements View.OnClickListener {
     private final MediaPlayerImp.MediaStateListener mStateListener = new MediaPlayerImp.MediaStateListener() {
         @Override
         public void onStateChanged(MediaBean bean) {
+            if (bean == null) {
+                return;
+            }
             switch (bean.state) {
                 case MediaPlayerImp.STATE_PREPARED:
                     mStartIv.setImageResource(R.mipmap.pause_new);
