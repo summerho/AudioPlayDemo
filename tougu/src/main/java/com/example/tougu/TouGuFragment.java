@@ -55,6 +55,7 @@ public class TouGuFragment extends Fragment implements View.OnClickListener {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         initView();
+        MediaPlayerManager.getInstance().registerObserver(mStateListener);
     }
 
     private void initView() {
@@ -114,32 +115,22 @@ public class TouGuFragment extends Fragment implements View.OnClickListener {
         }
     };
 
-    private void play(String url) {
-        MediaPlayerHelper.getInstance(getContext()).setMediaStateListener(mStateListener);
-        MediaPlayerHelper.getInstance(getContext()).play(url);
-    }
-
-    private void seekTo(String url, long mesc) {
-        MediaPlayerHelper.getInstance(getContext()).setMediaStateListener(mStateListener);
-        MediaPlayerHelper.getInstance(getContext()).seekTo(url, mesc);
-    }
-
     @Override
     public void onClick(View v) {
         if (v.getId() == R.id.play_btn) {
-            play(MP3_URL);
+            MediaPlayerManager.getInstance().play(getContext(), MP3_URL);
         } else if (v.getId() == R.id.start_iv) {
             if (MediaPlayerHelper.getInstance(getContext()).isCompleted(MP3_URL) || MediaPlayerHelper.getInstance(getContext()).isStop(MP3_URL)) {
-                play(MP3_URL);
+                MediaPlayerManager.getInstance().play(getContext(), MP3_URL);
             } else if (MediaPlayerHelper.getInstance(getContext()).isPause(MP3_URL)) {
-                MediaPlayerHelper.getInstance(getContext()).start(MP3_URL);
+                MediaPlayerManager.getInstance().start(getContext(), MP3_URL);
                 mStartIv.setImageResource(R.mipmap.pause_new);
             } else if (MediaPlayerHelper.getInstance(getContext()).isPlaying(MP3_URL)) {
-                MediaPlayerHelper.getInstance(getContext()).pause(MP3_URL);
+                MediaPlayerManager.getInstance().pause(getContext(), MP3_URL);
                 mStartIv.setImageResource(R.mipmap.start_new);
             }
         } else if (v.getId() == R.id.stop_iv) {
-            MediaPlayerHelper.getInstance(getContext()).stop(MP3_URL);
+            MediaPlayerManager.getInstance().stop(getContext(), MP3_URL);
             mStartIv.setImageResource(R.mipmap.start_new);
             mCurrentPosTv.setText("进度：" + Utils.secToTime(0));
             mHandler.removeCallbacksAndMessages(null);
@@ -147,7 +138,13 @@ public class TouGuFragment extends Fragment implements View.OnClickListener {
             if (TextUtils.isEmpty(mEditText.getText().toString())) {
                 return;
             }
-            seekTo(MP3_URL, Integer.parseInt(mEditText.getText().toString()) * 1000);
+            MediaPlayerManager.getInstance().seekTo(getContext(), MP3_URL, Integer.parseInt(mEditText.getText().toString()) * 1000);
         }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        MediaPlayerManager.getInstance().unregisterObserver(mStateListener);
     }
 }

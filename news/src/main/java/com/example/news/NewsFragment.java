@@ -1,4 +1,4 @@
-package com.example.audioplaydemo;
+package com.example.news;
 
 import android.os.Bundle;
 import android.os.Handler;
@@ -54,6 +54,7 @@ public class NewsFragment extends Fragment implements View.OnClickListener {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         initView();
+        MediaPlayerManager.getInstance().registerObserver(mStateListener);
     }
 
     private void initView() {
@@ -113,8 +114,7 @@ public class NewsFragment extends Fragment implements View.OnClickListener {
     };
 
     private void play(String url) {
-        MediaPlayerHelper.getInstance(getContext()).setMediaStateListener(mStateListener);
-        MediaPlayerHelper.getInstance(getContext()).play(url);
+        MediaPlayerManager.getInstance().play(getContext(), url);
         mPlayUrl = url;
     }
 
@@ -128,17 +128,23 @@ public class NewsFragment extends Fragment implements View.OnClickListener {
             if (MediaPlayerHelper.getInstance(getContext()).isCompleted(mPlayUrl) || MediaPlayerHelper.getInstance(getContext()).isStop(mPlayUrl)) {
                 play(mPlayUrl);
             } else if (MediaPlayerHelper.getInstance(getContext()).isPause(mPlayUrl)) {
-                MediaPlayerHelper.getInstance(getContext()).start(mPlayUrl);
+                MediaPlayerManager.getInstance().start(getContext(), mPlayUrl);
                 mStartIv.setImageResource(R.mipmap.pause);
             } else if (MediaPlayerHelper.getInstance(getContext()).isPlaying(mPlayUrl)) {
-                MediaPlayerHelper.getInstance(getContext()).pause(mPlayUrl);
+                MediaPlayerManager.getInstance().pause(getContext(), mPlayUrl);
                 mStartIv.setImageResource(R.mipmap.start);
             }
         } else if (v.getId() == R.id.stop_iv) {
-            MediaPlayerHelper.getInstance(getContext()).stop(mPlayUrl);
+            MediaPlayerManager.getInstance().stop(getContext(), mPlayUrl);
             mStartIv.setImageResource(R.mipmap.start);
             mCurrentPosTv.setText("进度：" + Utils.secToTime(0));
             mHandler.removeCallbacksAndMessages(null);
         }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        MediaPlayerManager.getInstance().unregisterObserver(mStateListener);
     }
 }

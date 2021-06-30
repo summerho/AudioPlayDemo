@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.audioplaydemo.widget.BottomTab;
 import com.example.audioplaydemo.widget.FragmentTabHost;
+import com.example.news.NewsFragment;
 import com.example.tougu.TouGuFragment;
 
 import java.util.ArrayList;
