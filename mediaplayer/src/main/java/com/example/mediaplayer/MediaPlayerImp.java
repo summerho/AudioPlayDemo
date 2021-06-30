@@ -4,6 +4,7 @@ import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 
@@ -53,16 +54,6 @@ public class MediaPlayerImp {
      */
     public static final int STATE_ERROR = 4;
 
-    /**
-     * 获得音频焦点
-     */
-    public static final int STATE_GAIN_AUDIO_FOCUS = 5;
-
-    /**
-     * 失去音频焦点
-     */
-    public static final int STATE_LOSS_AUDIO_FOCUS = 6;
-
     private final AudioManager mAm;
 
     private MediaStateListener mStateListener;
@@ -93,7 +84,7 @@ public class MediaPlayerImp {
     private final Map<String, MediaBean> mMediaMap = new HashMap<>();
 
     public interface MediaStateListener {
-        void onStateChanged(int state);
+        void onStateChanged(MediaBean bean);
     }
 
     public MediaPlayerImp(Context context) {
@@ -113,15 +104,22 @@ public class MediaPlayerImp {
     private final AudioManager.OnAudioFocusChangeListener mAfChangeListener = focusChange -> {
         if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
             start();
-            mStateListener.onStateChanged(STATE_GAIN_AUDIO_FOCUS);
+            mStateListener.onStateChanged(getCurrentBean());
         } else if (focusChange == AudioManager.AUDIOFOCUS_LOSS) {
             pause();
-            mStateListener.onStateChanged(STATE_LOSS_AUDIO_FOCUS);
+            mStateListener.onStateChanged(getCurrentBean());
         } else if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT) {
             pause();
-            mStateListener.onStateChanged(STATE_LOSS_AUDIO_FOCUS);
+            mStateListener.onStateChanged(getCurrentBean());
         }
     };
+
+    private MediaBean getCurrentBean() {
+        if (TextUtils.isEmpty(mPlayUrl)) {
+            return null;
+        }
+        return getMediaBean(mPlayUrl);
+    }
 
     /**
      * 获取音频焦点
@@ -317,19 +315,18 @@ public class MediaPlayerImp {
                             mSeekToPosition = 0;
                         }
                         start();
-                        mStateListener.onStateChanged(STATE_PREPARED);
-                        updateMediaState(STATE_PREPARED);
+                        mStateListener.onStateChanged(getCurrentBean());
                     } else if (playbackState == Player.STATE_ENDED) {
-                        mStateListener.onStateChanged(STATE_COMPLETED);
                         ((ExoPlayer) mMediaPlayer).setPlayWhenReady(false);
                         updateMediaState(STATE_COMPLETED);
+                        mStateListener.onStateChanged(getCurrentBean());
                     }
                 }
 
                 @Override
                 public void onPlayerError(ExoPlaybackException error) {
-                    mStateListener.onStateChanged(STATE_ERROR);
                     updateMediaState(STATE_ERROR);
+                    mStateListener.onStateChanged(getCurrentBean());
                 }
 
                 @Override
@@ -341,20 +338,21 @@ public class MediaPlayerImp {
         } else {
             MediaPlayer mediaPlayer = new MediaPlayer();
             mediaPlayer.setOnPreparedListener((mp) -> {
-                seekTo(mSeekToPosition);
+                if (mSeekToPosition != 0) {
+                    seekTo(mSeekToPosition);
+                    mSeekToPosition = 0;
+                }
                 start();
-                mStateListener.onStateChanged(STATE_PREPARED);
-                mSeekToPosition = 0;
-                updateMediaState(STATE_PREPARED);
+                mStateListener.onStateChanged(getCurrentBean());
             });
             mediaPlayer.setOnErrorListener((mp, what, extra) -> {
-                mStateListener.onStateChanged(STATE_ERROR);
                 updateMediaState(STATE_ERROR);
+                mStateListener.onStateChanged(getCurrentBean());
                 return true;
             });
             mediaPlayer.setOnCompletionListener((mp) -> {
-                mStateListener.onStateChanged(STATE_COMPLETED);
                 updateMediaState(STATE_COMPLETED);
+                mStateListener.onStateChanged(getCurrentBean());
             });
             mediaPlayer.setOnSeekCompleteListener((mp) -> {
             });

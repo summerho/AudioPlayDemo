@@ -17,6 +17,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.commons.Utils;
+import com.example.mediaplayer.MediaBean;
 import com.example.mediaplayer.MediaPlayerHelper;
 import com.example.mediaplayer.MediaPlayerImp;
 
@@ -72,15 +73,14 @@ public class NewsFragment extends Fragment implements View.OnClickListener {
 
     private final MediaPlayerImp.MediaStateListener mStateListener = new MediaPlayerImp.MediaStateListener() {
         @Override
-        public void onStateChanged(int state) {
-            switch (state) {
+        public void onStateChanged(MediaBean bean) {
+            switch (bean.state) {
                 case MediaPlayerImp.STATE_PREPARED:
                     mStartIv.setImageResource(R.mipmap.pause);
                     mDurationTv.setText("时长：" + Utils.secToTime(MediaPlayerHelper.getInstance(getContext()).getDuration() / 1000));
                     mTicker.run();
                     break;
                 case MediaPlayerImp.STATE_PAUSE:
-                case MediaPlayerImp.STATE_LOSS_AUDIO_FOCUS:
                     mStartIv.setImageResource(R.mipmap.start);
                     break;
                 case MediaPlayerImp.STATE_COMPLETED:
@@ -91,9 +91,6 @@ public class NewsFragment extends Fragment implements View.OnClickListener {
                 case MediaPlayerImp.STATE_ERROR:
                     mStartIv.setImageResource(R.mipmap.start);
                     Toast.makeText(getContext(), "资讯_播放出错", Toast.LENGTH_SHORT).show();
-                    break;
-                case MediaPlayerImp.STATE_GAIN_AUDIO_FOCUS:
-                    mStartIv.setImageResource(R.mipmap.pause);
                     break;
                 default:
                     break;

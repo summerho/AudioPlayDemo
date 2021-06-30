@@ -2,6 +2,7 @@ package com.example.tougu;
 
 import android.content.Context;
 
+import com.example.mediaplayer.MediaBean;
 import com.example.mediaplayer.MediaPlayerHelper;
 import com.example.mediaplayer.MediaPlayerImp;
 
@@ -35,16 +36,16 @@ public class MediaPlayerManager {
         mMediaStateListeners.remove(listener);
     }
 
-    private void notifyStateChanged(int state) {
+    private void notifyStateChanged(MediaBean bean) {
         for (MediaPlayerImp.MediaStateListener mediaStateListener : mMediaStateListeners) {
-            mediaStateListener.onStateChanged(state);
+            mediaStateListener.onStateChanged(bean);
         }
     }
 
     private final MediaPlayerImp.MediaStateListener mStateListener = new MediaPlayerImp.MediaStateListener() {
         @Override
-        public void onStateChanged(int state) {
-            notifyStateChanged(state);
+        public void onStateChanged(MediaBean bean) {
+            notifyStateChanged(bean);
         }
     };
 

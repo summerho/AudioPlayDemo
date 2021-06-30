@@ -85,15 +85,13 @@ public class MediaPlayerHelper {
      * @param url 音频链接
      */
     public void play(String url) {
-        stop(mPlayUrl);
+        pause(mPlayUrl);
         // 更新被暂停音频页面的UI
-        if (mMediaPlayerImp.getMediaBean(mPlayUrl) != null && mMediaPlayerImp.getMediaBean(mPlayUrl).stateListener != null) {
-            mMediaPlayerImp.getMediaBean(mPlayUrl).stateListener.onStateChanged(MediaPlayerImp.STATE_PAUSE);
+        MediaBean bean = mMediaPlayerImp.getMediaBean(mPlayUrl);
+        if (bean != null && bean.stateListener != null) {
+            bean.stateListener.onStateChanged(bean);
         }
-        if (TextUtils.isEmpty(mPlayUrl) || !mPlayUrl.equals(url)) {
-            // 记录被暂停音频的状态及播放进度，用于下次继续播放
-            mMediaPlayerImp.updateMediaState(mPlayUrl, MediaPlayerImp.STATE_PAUSE);
-        }
+        // 播放新的音频
         mMediaPlayerImp.playAsync(url);
         mPlayUrl = url;
     }
