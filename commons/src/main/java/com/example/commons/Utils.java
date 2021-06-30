@@ -1,4 +1,4 @@
-package com.example.audioplaydemo.util;
+package com.example.commons;
 
 public class Utils {
 

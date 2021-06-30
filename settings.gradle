@@ -1,3 +1,5 @@
+include ':commons'
+include ':tougu'
 include ':mediaplayer'
 include ':app'
 rootProject.name = "AudioPlayDemo"
