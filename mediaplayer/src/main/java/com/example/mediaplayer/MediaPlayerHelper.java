@@ -141,7 +141,7 @@ public class MediaPlayerHelper {
      * @param msec 毫秒
      */
     public void seekTo(String url, long msec) {
-        if (!TextUtils.isEmpty(mPlayUrl) && mPlayUrl.equals(url)) {
+        if (!TextUtils.isEmpty(mPlayUrl) && mPlayUrl.equals(url) && !isStop(url)) {
             mMediaPlayerImp.seekTo(msec);
         } else {
             mMediaPlayerImp.setSeekToPosition(msec);

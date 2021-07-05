@@ -93,6 +93,11 @@ public class TouGuFragment extends Fragment implements View.OnClickListener {
                     mCurrentPosTv.setText("进度：" + Utils.secToTime(0));
                     mHandler.removeCallbacksAndMessages(null);
                     break;
+                case MediaPlayerImp.STATE_STOP:
+                    mStartIv.setImageResource(R.mipmap.start_new);
+                    mCurrentPosTv.setText("进度：" + Utils.secToTime(0));
+                    mHandler.removeCallbacksAndMessages(null);
+                    break;
                 case MediaPlayerImp.STATE_ERROR:
                     mStartIv.setImageResource(R.mipmap.start_new);
                     Toast.makeText(getContext(), "资讯_播放出错", Toast.LENGTH_SHORT).show();
@@ -124,16 +129,11 @@ public class TouGuFragment extends Fragment implements View.OnClickListener {
                 MediaPlayerManager.getInstance().play(getContext(), MP3_URL);
             } else if (MediaPlayerHelper.getInstance(getContext()).isPause(MP3_URL)) {
                 MediaPlayerManager.getInstance().start(getContext(), MP3_URL);
-                mStartIv.setImageResource(R.mipmap.pause_new);
             } else if (MediaPlayerHelper.getInstance(getContext()).isPlaying(MP3_URL)) {
                 MediaPlayerManager.getInstance().pause(getContext(), MP3_URL);
-                mStartIv.setImageResource(R.mipmap.start_new);
             }
         } else if (v.getId() == R.id.stop_iv) {
             MediaPlayerManager.getInstance().stop(getContext(), MP3_URL);
-            mStartIv.setImageResource(R.mipmap.start_new);
-            mCurrentPosTv.setText("进度：" + Utils.secToTime(0));
-            mHandler.removeCallbacksAndMessages(null);
         } else if (v.getId() == R.id.seek_btn) {
             if (TextUtils.isEmpty(mEditText.getText().toString())) {
                 return;

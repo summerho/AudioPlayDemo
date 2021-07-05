@@ -202,6 +202,7 @@ public class MediaPlayerImp {
             ((MediaPlayer) mMediaPlayer).start();
         }
         updateMediaState(STATE_PREPARED);
+        mStateListener.onStateChanged(getCurrentBean());
     }
 
     protected void pause() {
@@ -211,6 +212,7 @@ public class MediaPlayerImp {
             ((MediaPlayer) mMediaPlayer).pause();
         }
         updateMediaState(STATE_PAUSE);
+        mStateListener.onStateChanged(getCurrentBean());
         abandonAudioFocus();
     }
 
@@ -222,6 +224,7 @@ public class MediaPlayerImp {
             ((MediaPlayer) mMediaPlayer).stop();
         }
         updateMediaState(STATE_STOP);
+        mStateListener.onStateChanged(getCurrentBean());
         abandonAudioFocus();
     }
 

@@ -91,6 +91,11 @@ public class NewsFragment extends Fragment implements View.OnClickListener {
                     mCurrentPosTv.setText("进度：" + Utils.secToTime(0));
                     mHandler.removeCallbacksAndMessages(null);
                     break;
+                case MediaPlayerImp.STATE_STOP:
+                    mStartIv.setImageResource(R.mipmap.start);
+                    mCurrentPosTv.setText("进度：" + Utils.secToTime(0));
+                    mHandler.removeCallbacksAndMessages(null);
+                    break;
                 case MediaPlayerImp.STATE_ERROR:
                     mStartIv.setImageResource(R.mipmap.start);
                     Toast.makeText(getContext(), "资讯_播放出错", Toast.LENGTH_SHORT).show();
@@ -129,16 +134,11 @@ public class NewsFragment extends Fragment implements View.OnClickListener {
                 play(mPlayUrl);
             } else if (MediaPlayerHelper.getInstance(getContext()).isPause(mPlayUrl)) {
                 MediaPlayerManager.getInstance().start(getContext(), mPlayUrl);
-                mStartIv.setImageResource(R.mipmap.pause);
             } else if (MediaPlayerHelper.getInstance(getContext()).isPlaying(mPlayUrl)) {
                 MediaPlayerManager.getInstance().pause(getContext(), mPlayUrl);
-                mStartIv.setImageResource(R.mipmap.start);
             }
         } else if (v.getId() == R.id.stop_iv) {
             MediaPlayerManager.getInstance().stop(getContext(), mPlayUrl);
-            mStartIv.setImageResource(R.mipmap.start);
-            mCurrentPosTv.setText("进度：" + Utils.secToTime(0));
-            mHandler.removeCallbacksAndMessages(null);
         }
     }
 
