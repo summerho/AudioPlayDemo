@@ -61,6 +61,13 @@ public class MediaPlayerHelper {
     }
 
     /**
+     * 获取url对应的bean
+     */
+    public MediaBean getMediaBean(String url) {
+        return mMediaPlayerImp.getMediaBean(url);
+    }
+
+    /**
      * 重置
      */
     public void reset() {
