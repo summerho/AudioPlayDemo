@@ -51,16 +51,19 @@ public class MediaPlayerManager {
 
     public void play(Context context, String url) {
         MediaPlayerHelper.getInstance(context).setMediaStateListener(mStateListener);
+        MediaPlayerHelper.getInstance(context).setMediaFrom(MediaPlayerHelper.MEDIA_SOURCE_TOUGU);
         MediaPlayerHelper.getInstance(context).play(url);
     }
 
     public void start(Context context, String url) {
         MediaPlayerHelper.getInstance(context).setMediaStateListener(mStateListener);
+        MediaPlayerHelper.getInstance(context).setMediaFrom(MediaPlayerHelper.MEDIA_SOURCE_TOUGU);
         MediaPlayerHelper.getInstance(context).start(url);
     }
 
     public void seekTo(Context context, String url, long mesc) {
         MediaPlayerHelper.getInstance(context).setMediaStateListener(mStateListener);
+        MediaPlayerHelper.getInstance(context).setMediaFrom(MediaPlayerHelper.MEDIA_SOURCE_TOUGU);
         MediaPlayerHelper.getInstance(context).seekTo(url, mesc);
     }
 

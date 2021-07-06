@@ -7,6 +7,10 @@ import androidx.annotation.NonNull;
 
 public class MediaPlayerHelper {
 
+    public static final int MEDIA_SOURCE_NEWS = 0;
+
+    public static final int MEDIA_SOURCE_TOUGU = 1;
+
     private volatile static MediaPlayerHelper mInstance;
 
     /**
@@ -18,6 +22,8 @@ public class MediaPlayerHelper {
      * 当前播放音频的链接
      */
     private String mPlayUrl;
+
+    private int mSource;
 
     public static MediaPlayerHelper getInstance(Context context) {
         if (mInstance == null) {
@@ -36,6 +42,22 @@ public class MediaPlayerHelper {
 
     public void setMediaStateListener(@NonNull MediaPlayerImp.MediaStateListener listener) {
         mMediaPlayerImp.setMediaStateListener(listener);
+    }
+
+    /**
+     * 设置多媒体的播放来源
+     * @param source 0-资讯，1-投顾
+     */
+    public void setMediaFrom(int source) {
+        mSource = source;
+    }
+
+    /**
+     * 获取播放来源
+     * @return 0-资讯，1-投顾
+     */
+    public int getMediaFrom() {
+        return mSource;
     }
 
     /**
