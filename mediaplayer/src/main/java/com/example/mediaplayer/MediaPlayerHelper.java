@@ -23,7 +23,10 @@ public class MediaPlayerHelper {
      */
     private String mPlayUrl;
 
-    private int mSource;
+    /**
+     * 音频播放来源（0-资讯，1-投顾）
+     */
+    private int mSource = -1;
 
     public static MediaPlayerHelper getInstance(Context context) {
         if (mInstance == null) {
