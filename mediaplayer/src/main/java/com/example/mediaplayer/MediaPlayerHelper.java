@@ -68,6 +68,14 @@ public class MediaPlayerHelper {
     }
 
     /**
+     * 获取当前播放的url
+     * @return
+     */
+    public String getMediaUrl() {
+        return mPlayUrl;
+    }
+
+    /**
      * 重置
      */
     public void reset() {
